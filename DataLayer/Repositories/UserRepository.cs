@@ -26,6 +26,7 @@ namespace DataLayer.Repositories
             {
                 User? user = await _dbContext.Set<User>()
                     .Include(x => x.Works)
+                        .ThenInclude(x => x.Enterprise)
                     .FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower() && x.Password == _JWTService.encryptSHA256(password));
                 if (user == null)
                 {

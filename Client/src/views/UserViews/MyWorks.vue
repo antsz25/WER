@@ -26,12 +26,17 @@ export default defineComponent({
       } as WorkVM,
       enterpriseList: [] as EnterpriseVM[],
       openWorkModal: false,
+      textSize: '' as string | null,
+      backgroundColor: '' as string | null,
     }
   },
   mounted() {
     this.userModel = JSON.parse(localStorage.getItem('session'))
     this.workModel.UserId = this.userModel.Id
     this.getWorks()
+
+    this.updateTextSize()
+    this.updateBackground()
   },
   methods: {
     getEnterprises() {
@@ -82,14 +87,38 @@ export default defineComponent({
         params: { enterpriseId: work.Enterprise.Id },
       })
     },
+    updateTextSize() {
+      this.textSize = localStorage.getItem('textSize')
+    },
+    updateBackground() {
+      this.backgroundColor = localStorage.getItem('backgroundColor')
+    },
+  },
+  computed: {
+    getTextSize(): string | null {
+      return this.textSize
+    },
+    getBgColor(): string | null {
+      return this.backgroundColor
+    },
   },
 })
 </script>
 <template>
-  <div class="w-full h-full flex bg-[#36454F]">
-    <nav-bar></nav-bar>
+  <div class="w-full h-full flex" :class="getBgColor">
+    <nav-bar
+      :selected-background="backgroundColor"
+      :selected-text-size="textSize"
+      @update-text-size="updateTextSize"
+      @update-background="updateBackground"
+    ></nav-bar>
     <div class="flex flex-col w-full p-14">
-      <p class="text-center text-6xl text-[#FFFFF0]">{{ title }}</p>
+      <p
+        class="text-center text-[#FFFFF0]"
+        :class="[getTextSize === 'text-base' ? 'text-6xl' : getTextSize]"
+      >
+        {{ title }}
+      </p>
       <div class="w-full h-full overflow-y-auto bg-[#D9D9D9]">
         <table class="table-auto w-full rounded-lg border shadow-sm">
           <thead>
@@ -134,7 +163,12 @@ export default defineComponent({
         >
           <div class="bg-white rounded-lg p-8">
             <div class="flex w-full justify-between space-x-10">
-              <h3 class="text-lg font-semibold">Agregar nuevo empleo</h3>
+              <h3
+                class="font-semibold"
+                :class="[getTextSize === 'text-base' ? 'text-lg' : getTextSize]"
+              >
+                Agregar nuevo empleo
+              </h3>
               <button @click="showWorkModal">
                 <font-awesome-icon
                   :icon="'xmark'"

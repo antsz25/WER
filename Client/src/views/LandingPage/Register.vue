@@ -3,9 +3,13 @@ import { defineComponent } from 'vue'
 import UserService from '../../services/UserService'
 import { $ShowNotification } from '../../globals'
 import { UserRegisterVM } from '../../interfaces'
+import DropDownComponent from '../Shared/DropDownMenu.vue'
 
 export default defineComponent({
   name: 'Register',
+  components: {
+    DropDownComponent,
+  },
   data() {
     return {
       platformName: 'Mi Voz',
@@ -15,7 +19,13 @@ export default defineComponent({
         Email: '',
         Password: '',
       } as UserRegisterVM,
+      textSize: '' as string | null,
+      backgroundColor: '' as string | null,
     }
+  },
+  mounted() {
+    this.updateTextSize()
+    this.updateBackground()
   },
   methods: {
     async registerUser() {
@@ -40,28 +50,73 @@ export default defineComponent({
           $ShowNotification('error', 'Error', `${error}`)
         })
     },
+    updateTextSize() {
+      this.textSize = localStorage.getItem('textSize')
+    },
+    updateBackground() {
+      this.backgroundColor = localStorage.getItem('backgroundColor')
+    },
     goLoginForm() {
       this.$router.push({ name: 'Login' })
+    },
+  },
+  computed: {
+    getTextSize(): string | null {
+      return this.textSize
+    },
+    getBgColor(): string | null {
+      return this.backgroundColor
     },
   },
 })
 </script>
 <template>
   <div class="w-full h-full flex flex-col justify-between sm:flex-row">
-    <div class="w-full h-full flex items-center flex-col bg-[#36454F]">
-      <div class="mt-12">
-        <p class="text-6xl font-bold">{{ platformName }}</p>
+    <drop-down-component
+      class="absolute w-0 h-0"
+      :class="getBgColor"
+      :selectedBackground="backgroundColor"
+      :selectedTextSize="textSize"
+      @update-text-size="updateTextSize"
+      @update-background="updateBackground"
+    ></drop-down-component>
+    <div
+      class="w-full h-full flex flex-col-reverse justify-between sm:flex-row"
+    >
+      <div
+        class="w-full h-full flex items-center sm:flex-col"
+        :class="getBgColor"
+      >
+        <div class="sm:mt-12">
+          <p
+            :class="[getTextSize === 'text-base' ? 'text-6xl' : getTextSize]"
+            class="font-bold"
+          >
+            {{ platformName }}
+          </p>
+        </div>
+        <div class="sm:mt-5">
+          <p :class="[getTextSize === 'text-base' ? 'text-4xl' : getTextSize]">
+            {{ platformDescription }}
+          </p>
+        </div>
+        <div
+          class="w-full h-full flex items-center sm:items-end justify-center sm:mb-52"
+        >
+          <img
+            alt="Web Page Logo"
+            class="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px]"
+            src="../../Logo.png"
+          />
+        </div>
       </div>
-      <div class="mt-5">
-        <p class="text-4xl text-[#FFFFF0]">{{ platformDescription }}</p>
-      </div>
-      <div class="w-full h-full flex items-end justify-center mb-52">
-        <img class="w-[300px] h-[300px]" src="../../Logo.png" />
-      </div>
-    </div>
-    <div class="w-full h-full flex flex-col justify-center items-center">
-      <p class="text-[#4B2142] text-4xl">Registrate</p>
-      <div class="flex flex-col">
+      <div class="w-full h-full flex flex-col justify-center items-center">
+        <p
+          class="text-[#4B2142]"
+          :class="[getTextSize === 'text-base' ? 'text-4xl' : getTextSize]"
+        >
+          Registrate
+        </p>
         <input
           v-model="registerModel.Name"
           type="text"
@@ -91,15 +146,18 @@ export default defineComponent({
         >
           Registrar
         </button>
-      </div>
-      <p class="text-[#4B2142] text-xl leading-none">
-        ¿Ya cuentas con una cuenta?
-        <a
-          class="font-bold underline hover:text-[#DDA0DD] active:text-[#8f668f]"
-          @click="goLoginForm"
-          >Da clic Aquí</a
+        <p
+          class="text-[#4B2142] leading-none mb-5 sm:mb-0"
+          :class="[getTextSize === 'text-base' ? 'text-xl' : getTextSize]"
         >
-      </p>
+          ¿Ya cuentas con una cuenta?
+          <a
+            class="font-bold underline hover:text-[#DDA0DD] active:text-[#8f668f]"
+            @click="goLoginForm"
+            >Da clic Aquí</a
+          >
+        </p>
+      </div>
     </div>
   </div>
 </template>

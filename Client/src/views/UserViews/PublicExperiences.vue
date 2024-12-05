@@ -26,11 +26,16 @@ export default defineComponent({
       acceptedFormats: 'image/*,application/pdf',
       filterOption: '',
       searchContent: '',
+      textSize: '' as string | null,
+      backgroundColor: '' as string | null,
     }
   },
   mounted() {
     this.userModel = JSON.parse(localStorage.getItem('session'))
     this.getExperiences()
+
+    this.updateTextSize()
+    this.updateBackground()
   },
   methods: {
     getExperiences() {
@@ -96,6 +101,12 @@ export default defineComponent({
           }
         }
       })
+    },
+    updateTextSize() {
+      this.textSize = localStorage.getItem('textSize')
+    },
+    updateBackground() {
+      this.backgroundColor = localStorage.getItem('backgroundColor')
     },
   },
   watch: {
@@ -170,14 +181,30 @@ export default defineComponent({
             )
       }
     },
+    getTextSize(): string | null {
+      return this.textSize
+    },
+    getBgColor(): string | null {
+      return this.backgroundColor
+    },
   },
 })
 </script>
 <template>
-  <div class="w-full h-full flex bg-[#36454F]">
-    <nav-bar></nav-bar>
+  <div class="w-full h-full flex" :class="getBgColor">
+    <nav-bar
+      :selected-background="backgroundColor"
+      :selected-text-size="textSize"
+      @update-text-size="updateTextSize"
+      @update-background="updateBackground"
+    ></nav-bar>
     <div class="flex flex-col w-full">
-      <p class="w-full text-center text-6xl text-[#FFFFF0]">{{ title }}</p>
+      <p
+        class="w-full text-center text-[#FFFFF0]"
+        :class="[getTextSize === 'text-base' ? 'text-6xl' : getTextSize]"
+      >
+        {{ title }}
+      </p>
       <div class="w-full h-16 space-x-20 flex flex-row p-5 mb-2">
         <div class="flex flex-col">
           <label for="filterComments">Filtrar comentarios</label>
@@ -220,7 +247,7 @@ export default defineComponent({
                 <div class="flex flex-row items-center">
                   <img
                     :src="experience.CreatedBy.Photo"
-                    alt="userPhoto"
+                    alt="Creator of publication photo"
                     class="w-12 h-12 rounded"
                   />
                   <span class="italic text-black text-left text-base ml-2">
@@ -264,7 +291,14 @@ export default defineComponent({
           <div class="bg-white w-full m-48 rounded-lg p-8">
             <div class="flex w-full flex-col justify-between">
               <div class="flex w-full h-full justify-between">
-                <h3 class="text-lg font-semibold">Adjuntos de publicación</h3>
+                <h3
+                  class="font-semibold"
+                  :class="[
+                    getTextSize === 'text-base' ? 'text-lg' : getTextSize,
+                  ]"
+                >
+                  Adjuntos de publicación
+                </h3>
                 <button @click="openAttachmentsModal({})">
                   <font-awesome-icon
                     :icon="'xmark'"

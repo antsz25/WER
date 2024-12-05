@@ -1,44 +1,20 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-import UserService from '../../services/UserService'
-import { UserLoginVM, UserSessionVM } from '../../interfaces'
-import { $ShowNotification } from '../../globals'
-
-export default defineComponent({
-  name: 'LoginForm',
-  data() {
-    return {
-      platformName: 'Mi Voz',
-      platformDescription: 'Conecta, comparte, transforma',
-      loginModel: {
-        Email: '',
-        Password: '',
-      } as UserLoginVM,
-    }
-  },
-  methods: {
-    async loginUser() {
-      await UserService.$Loginuser(this.loginModel)
-        .then(response => {
-          const session: UserSessionVM = response.data
-          localStorage.setItem('session', JSON.stringify(session))
-          this.$router.push({ name: 'PublicExperiences' })
-        })
-        .catch(error => {
-          $ShowNotification('error', 'Error', `${error.response.data}`)
-        })
-    },
-    goRegisterForm() {
-      this.$router.push({ name: 'Register' })
-    },
-  },
-})
-</script>
 <template>
   <div class="w-full h-full flex flex-col justify-between sm:flex-row">
     <div class="w-full h-full flex flex-col justify-center items-center">
-      <p class="text-[#4B2142] text-4xl">Ingresa a tu cuenta</p>
-      <div class="flex flex-col">
+      <drop-down-component
+        :selectedBackground="backgroundColor"
+        :selectedTextSize="textSize"
+        @update-text-size="updateTextSize"
+        @update-background="updateBackground"
+        class="h-full justify-self-start self-start"
+      ></drop-down-component>
+      <p
+        class="text-[#4B2142]"
+        :class="[getTextSize === 'text-base' ? 'text-4xl' : getTextSize]"
+      >
+        Ingresa a tu cuenta
+      </p>
+      <div class="h-full flex flex-col mb-8 sm:mb-0">
         <input
           v-model="loginModel.Email"
           type="text"
@@ -55,32 +31,105 @@ export default defineComponent({
         />
         <button
           type="button"
-          class="w-48 h-8 bg-[#DDA0DD] text-black text-lg self-center mt-5"
+          class="w-48 h-8 bg-[#DDA0DD] text-black self-center mt-5"
+          :class="[getTextSize === 'text-base' ? 'text-lg' : getTextSize]"
           @click="loginUser"
           @keyup.enter="loginUser"
         >
           Ingresar
         </button>
-      </div>
-      <p class="text-[#4B2142] text-xl leading-none">
-        ¿Aún no tienes cuenta?
-        <a
-          class="font-bold underline hover:text-[#DDA0DD] active:text-[#8f668f]"
-          @click="goRegisterForm"
-          >Registrate Aquí</a
+        <p
+          class="text-[#4B2142] leading-none"
+          :class="[getTextSize === 'text-base' ? 'text-xl' : getTextSize]"
         >
-      </p>
+          ¿Aún no tienes cuenta?
+          <a
+            class="font-bold underline hover:text-[#DDA0DD] active:text-[#8f668f]"
+            @click="goRegisterForm"
+            >Registrate Aquí</a
+          >
+        </p>
+      </div>
     </div>
-    <div class="w-full h-full flex items-center flex-col bg-[#36454F]">
-      <div class="mt-12">
+    <div
+      class="w-full h-full flex items-center sm:flex-col"
+      :class="getBgColor"
+    >
+      <div class="sm:mt-12">
         <p class="text-6xl font-bold">{{ platformName }}</p>
       </div>
-      <div class="mt-5">
+      <div class="sm:mt-5">
         <p class="text-4xl text-[#FFFFF0]">{{ platformDescription }}</p>
       </div>
-      <div class="w-full h-full flex items-end justify-center mb-52">
-        <img class="w-[300px] h-[300px]" src="../../Logo.png" />
+      <div
+        class="w-full h-full flex items-center sm:items-end justify-center sm:mb-52"
+      >
+        <img
+          alt="Web Page Logo"
+          class="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px]"
+          src="../../Logo.png"
+        />
       </div>
     </div>
   </div>
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+import UserService from '../../services/UserService'
+import { UserLoginVM, UserSessionVM } from '../../interfaces'
+import { $ShowNotification } from '../../globals'
+import DropDownComponent from '../Shared/DropDownMenu.vue'
+
+export default defineComponent({
+  name: 'LoginForm',
+  components: {
+    DropDownComponent,
+  },
+  data() {
+    return {
+      platformName: 'Mi Voz',
+      platformDescription: 'Conecta, comparte, transforma',
+      loginModel: {
+        Email: '',
+        Password: '',
+      } as UserLoginVM,
+      textSize: '',
+      backgroundColor: '',
+    }
+  },
+  mounted() {
+    this.updateTextSize()
+    this.updateBackground()
+  },
+  methods: {
+    async loginUser() {
+      await UserService.$Loginuser(this.loginModel)
+        .then(response => {
+          const session: UserSessionVM = response.data
+          localStorage.setItem('session', JSON.stringify(session))
+          this.$router.push({ name: 'PublicExperiences' })
+        })
+        .catch(error => {
+          $ShowNotification('error', 'Error', `${error.response.data}`)
+        })
+    },
+    goRegisterForm() {
+      this.$router.push({ name: 'Register' })
+    },
+    updateTextSize() {
+      this.textSize = localStorage.getItem('textSize')
+    },
+    updateBackground() {
+      this.backgroundColor = localStorage.getItem('backgroundColor')
+    },
+  },
+  computed: {
+    getTextSize(): string | null {
+      return this.textSize
+    },
+    getBgColor(): string | null {
+      return this.backgroundColor
+    },
+  },
+})
+</script>

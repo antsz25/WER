@@ -42,12 +42,16 @@ export default defineComponent({
       searchContent: '',
       filterOption: '',
       enterpriseId: undefined,
+      textSize: '' as string | null,
+      backgroundColor: '' as string | null,
     }
   },
   mounted() {
     this.userModel = JSON.parse(localStorage.getItem('session'))
     this.getMyExperiences()
     this.getEnterprises()
+    this.updateTextSize()
+    this.updateBackground()
     if (this.$route.params.enterpriseId !== undefined) {
       this.enterpriseId = parseInt(this.$route.params.enterpriseId)
     }
@@ -276,6 +280,12 @@ export default defineComponent({
         }
       })
     },
+    updateTextSize() {
+      this.textSize = localStorage.getItem('textSize')
+    },
+    updateBackground() {
+      this.backgroundColor = localStorage.getItem('backgroundColor')
+    },
   },
   watch: {
     experienceList: {
@@ -355,14 +365,30 @@ export default defineComponent({
             )
       }
     },
+    getTextSize(): string | null {
+      return this.textSize
+    },
+    getBgColor(): string | null {
+      return this.backgroundColor
+    },
   },
 })
 </script>
 <template>
-  <div class="w-full h-full flex bg-[#36454F]">
-    <nav-bar></nav-bar>
+  <div class="w-full h-full flex" :class="getBgColor">
+    <nav-bar
+      :selected-background="backgroundColor"
+      :selected-text-size="textSize"
+      @update-text-size="updateTextSize"
+      @update-background="updateBackground"
+    ></nav-bar>
     <div class="flex flex-col w-full">
-      <p class="text-center text-6xl text-[#FFFFF0]">{{ title }}</p>
+      <p
+        class="text-center"
+        :class="[getTextSize === 'text-base' ? 'text-6xl' : getTextSize]"
+      >
+        {{ title }}
+      </p>
       <div class="w-full h-16 space-x-20 flex flex-row p-5 mb-2">
         <div class="flex flex-col">
           <label for="filterComments">Filtrar comentarios</label>
@@ -405,18 +431,21 @@ export default defineComponent({
                 <div class="flex flex-row items-center">
                   <img
                     :src="experience.CreatedBy.Photo"
-                    alt="userPhoto"
+                    alt="Creator of publication photo"
                     class="w-12 h-12 rounded"
                   />
-                  <span class="ml-2 italic text-black text-left text-base">
+                  <span
+                    class="ml-2 italic text-black text-left"
+                    :class="getTextSize"
+                  >
                     {{ experience.CreatedBy.Name }} - {{ experience.CreatedAt }}
                   </span>
                 </div>
-                <div class="pr-6">
+                <div class="pr-6" :class="getTextSize">
                   Experiencia en empresa:
                   {{ experience.Enterprise.Name }}
                 </div>
-                <div class="pr-6">
+                <div class="pr-6" :class="getTextSize">
                   Calificacion: {{ experience.Ranking }} estrellas
                 </div>
               </div>
@@ -449,7 +478,12 @@ export default defineComponent({
       >
         <div class="bg-white rounded-lg p-8">
           <div class="flex w-full justify-between space-x-10">
-            <h3 class="text-lg font-semibold">Agregar Nueva experiencia</h3>
+            <h3
+              class="font-semibold"
+              :class="[getTextSize === 'text-base' ? 'text-lg' : getTextSize]"
+            >
+              Agregar Nueva experiencia
+            </h3>
             <button @click="openExperienceModal">
               <font-awesome-icon
                 :icon="'xmark'"
@@ -473,7 +507,13 @@ export default defineComponent({
                 </button>
               </div>
               <div class="flex space-x-2">
-                <label class="text-xl" for="calification">Calificacion</label>
+                <label
+                  :class="[
+                    getTextSize === 'text-base' ? 'text-xl' : getTextSize,
+                  ]"
+                  for="calification"
+                  >Calificacion</label
+                >
                 <select
                   v-model="newExperience.Ranking"
                   name="calification"
@@ -490,7 +530,11 @@ export default defineComponent({
               </div>
             </div>
             <div class="flex space-x-2 mt-6">
-              <label class="text-xl" for="enterprises">Empresa</label>
+              <label
+                :class="[getTextSize === 'text-base' ? 'text-xl' : getTextSize]"
+                for="enterprises"
+                >Empresa</label
+              >
               <select
                 v-model="newExperience.Enterprise"
                 name="enterprises"
@@ -528,7 +572,12 @@ export default defineComponent({
       >
         <div class="bg-white w-full rounded-lg p-8 m-48">
           <div class="flex w-full justify-between space-x-10">
-            <h3 class="text-lg font-semibold">Agregar Nuevos adjuntos</h3>
+            <h3
+              class="font-semibold"
+              :class="[getTextSize === 'text-base' ? 'text-lg' : getTextSize]"
+            >
+              Agregar Nuevos adjuntos
+            </h3>
             <button @click="openNewAttachmentsModal">
               <font-awesome-icon
                 :icon="'xmark'"
@@ -604,7 +653,12 @@ export default defineComponent({
         <div class="bg-white w-full m-48 rounded-lg p-8">
           <div class="flex w-full flex-col justify-between">
             <div class="flex w-full h-full justify-between">
-              <h3 class="text-lg font-semibold">Adjuntos de publicación</h3>
+              <h3
+                class="font-semibold"
+                :class="[getTextSize === 'text-base' ? 'text-lg' : getTextSize]"
+              >
+                Adjuntos de publicación
+              </h3>
               <button @click="openAttachmentsModal(null)">
                 <font-awesome-icon
                   :icon="'xmark'"
@@ -654,7 +708,13 @@ export default defineComponent({
                 </div>
               </div>
               <div class="w-full flex items-center justify-center" v-else>
-                <p class="text-xl">Sin adjuntos para mostrar</p>
+                <p
+                  :class="[
+                    getTextSize === 'text-base' ? 'text-xl' : getTextSize,
+                  ]"
+                >
+                  Sin adjuntos para mostrar
+                </p>
               </div>
               <div
                 class="flex justify-start items-center hover:bg-slate-50 w-5"

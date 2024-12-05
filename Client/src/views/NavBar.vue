@@ -2,12 +2,28 @@
 import { defineComponent } from 'vue'
 import { $CheckSession } from '../globals'
 import { UserSessionVM } from '../interfaces'
+import DropDownMenu from './Shared/DropDownMenu.vue'
 export default defineComponent({
   name: 'NavBar',
+  components: {
+    DropDownMenu,
+  },
+  props: {
+    selectedBackground: {
+      type: String,
+      default: 'dark',
+    },
+    selectedTextSize: {
+      type: String,
+      default: 'text-base',
+    },
+  },
   data() {
     return {
       userModel: {} as UserSessionVM,
       moduleSelected: 0,
+      textSize: this.selectedBackground,
+      backgroundColor: this.selectedTextSize,
     }
   },
   created() {
@@ -34,10 +50,34 @@ export default defineComponent({
       }
       this.$router.push('login')
     },
+    updateTextSize() {
+      this.textSize = localStorage.getItem('textSize')
+      this.$emit('updateTextSize', this.textSize)
+    },
+    updateBackground() {
+      this.backgroundColor = localStorage.getItem('backgroundColor')
+      this.$emit('updateBackground', this.backgroundColor)
+    },
+  },
+  computed: {
+    getTextSize(): string {
+      return this.textSize
+    },
+    getBgColor(): string {
+      return this.textSize
+    },
   },
 })
 </script>
 <template>
+  <drop-down-menu
+    class="absolute w-4 h-4"
+    :class="getBgColor"
+    :selectedBackground="backgroundColor"
+    :selectedTextSize="textSize"
+    @update-text-size="updateTextSize"
+    @update-background="updateBackground"
+  ></drop-down-menu>
   <div
     class="w-60 h-full flex flex-col space-y-5 items-center ml-5 p-2 border-black border-2 rounded-full bg-[#DCDCDC]"
   >
@@ -45,14 +85,19 @@ export default defineComponent({
       <div class="w-52 h-52 border-black border-2 rounded-full">
         <img
           :src="userModel.Photo"
-          alt="userPhoto"
+          alt="Loged user photo"
           class="w-full h-full rounded-full"
         />
       </div>
       <div class="w-full h-16 text-center">
-        <p class="text-2xl">{{ userModel.Name }}</p>
+        <p :class="[getTextSize === 'text-base' ? 'text-2xl' : getTextSize]">
+          {{ userModel.Name }}
+        </p>
       </div>
-      <div class="w-52 h-14 bg-black text-white text-center content-center">
+      <div
+        class="w-52 h-14 bg-black text-white text-center content-center"
+        :class="[getTextSize === 'text-base' ? '' : getTextSize]"
+      >
         <button
           :class="{
             'bg-[#FFFFF0] text-black': moduleSelected == 1,
@@ -64,7 +109,10 @@ export default defineComponent({
           Experiencias publicas
         </button>
       </div>
-      <div class="w-52 h-14 bg-black text-white text-center content-center">
+      <div
+        :class="[getTextSize === 'text-base' ? '' : getTextSize]"
+        class="w-52 h-14 bg-black text-white text-center content-center"
+      >
         <button
           :class="{
             'bg-[#FFFFF0] text-black': moduleSelected == 2,
@@ -76,7 +124,10 @@ export default defineComponent({
           Mis experiencias
         </button>
       </div>
-      <div class="w-52 h-14 bg-black text-white text-center content-center">
+      <div
+        :class="[getTextSize === 'text-base' ? '' : getTextSize]"
+        class="w-52 h-14 bg-black text-white text-center content-center"
+      >
         <button
           :class="{
             'bg-[#FFFFF0] text-black': moduleSelected == 3,
@@ -89,7 +140,10 @@ export default defineComponent({
         </button>
       </div>
     </div>
-    <div class="flex w-full h-full items-center">
+    <div
+      :class="[getTextSize === 'text-base' ? '' : getTextSize]"
+      class="flex w-full h-full items-center"
+    >
       <div class="w-52 h-14 bg-black text-white text-center content-center">
         <button
           class="w-full h-full bg-black text-white hover:bg-[#FFFFF0] hover:text-black active:bg-[#DCDCDCDC]"
